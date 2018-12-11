@@ -1,3 +1,11 @@
+//NEED listSondages; mois;
+
+
+
+
+
+
+
 // Retourne le texte HTML à afficher à l'utilisateur pour répondre au
 // sondage demandé.
 //
@@ -24,19 +32,27 @@ var getCalendar = function (sondageId) {
 							"\" data-nbheures = \"" + 
 							(+sondage.heureFin - +sondage.heureDebut) +
 							"\">"
+
+	table += "<tr><th></th>"
+	
+	var date = parseDate(dateDebut);
 	
 	for(var i = 0; i < nbJours; i++) {
 		
-		table += "<tr> <th> </th>";
+		table += "<th>" + (date[2]+i) + " " + mois[ date[1]-1 ] + "</th>";
 		
-		
+	}
+	
+
+	table += "</tr>";
 							
-	console.log(+sondage.heureFin - +sondage.heureDebut);
-							
+	table += "</table>";
+	
 	
 	
 	defaultDoc = defaultDoc.replace( /\{\{titre\}\}/g , sondage.titre).replace(
-	/\{\{url\}\}/g, " http://localhost:1337/" + sondage.id);
+	/\{\{url\}\}/g, " http://localhost:1337/" + sondage.id).replace(
+	 /\{\{table\}\}/g , table);
 	
 	
     return 'Calendrier <b>' + sondageId + '</b> (TODO)' + defaultDoc;
@@ -56,5 +72,13 @@ function findSondage(sondageId) {
 	
 	console.log("Sondage " + sondageId + " introuvable dans la liste!");
 	return -1;
+
+}
+
+
+//Sépare une date de format "aaaa-mm-jj" en un tableau ["aaaa","mm","jj"]
+function parseDate(date) {
+	
+	return date.split("-");
 
 }

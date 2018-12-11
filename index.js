@@ -123,21 +123,21 @@ var MILLIS_PAR_JOUR = (24 * 60 * 60 * 1000);
 //fonctions générales 
 
 
-//Retourne la position dans la liste de sondages
-//du sondage demandé
-function findSondage(sondageId) {
-	
-	//On cherche l'id du sondage parmi notre liste de sondages
-	for(var i = 0; i < listeSondages.length; i++) {
-		
-		if( listeSondages[i].id == sondageId ) return listeSondages[i];
-		
-	}
-	
-	console.log("Sondage " + sondageId + " introuvable dans la liste!");
-	return -1;
+//NEED listSondages;
 
-}
+
+
+
+
+
+
+//NEED listSondages; mois;
+
+
+
+
+
+
 
 // Retourne le texte HTML à afficher à l'utilisateur pour répondre au
 // sondage demandé.
@@ -164,24 +164,61 @@ var getCalendar = function (sondageId) {
 							nbJours +
 							"\" data-nbheures = \"" + 
 							(+sondage.heureFin - +sondage.heureDebut) +
-							"\">"
+							"\">";
+
+	table += "<tr><th></th>";
+	
+	console.log("gonna parse");
+	var date = parseDate(sondage.dateDebut);
+	console.log("parse completed");
 	
 	for(var i = 0; i < nbJours; i++) {
 		
-		table += "<tr> <th> </th>";
+		var jour = +date[2]+i;
 		
+		table += "<th>" + jour + " " + mois[ date[1]-1 ] + "</th>";
 		
+	}
+	
+
+	table += "</tr>";
 							
-	console.log(+sondage.heureFin - +sondage.heureDebut);
-							
+	table += "</table>";
+	
 	
 	
 	defaultDoc = defaultDoc.replace( /\{\{titre\}\}/g , sondage.titre).replace(
-	/\{\{url\}\}/g, " http://localhost:1337/" + sondage.id);
+	/\{\{url\}\}/g, " http://localhost:1337/" + sondage.id).replace(
+	 /\{\{table\}\}/g , table);
 	
 	
     return 'Calendrier <b>' + sondageId + '</b> (TODO)' + defaultDoc;
 };
+
+
+//Retourne la position dans la liste de sondages
+//du sondage demandé
+function findSondage(sondageId) {
+	
+	//On cherche l'id du sondage parmi notre liste de sondages
+	for(var i = 0; i < listeSondages.length; i++) {
+		
+		if( listeSondages[i].id == sondageId ) return listeSondages[i];
+		
+	}
+	
+	console.log("Sondage " + sondageId + " introuvable dans la liste!");
+	return -1;
+
+}
+
+
+//Sépare une date de format "aaaa-mm-jj" en un tableau ["aaaa","mm","jj"]
+function parseDate(date) {
+	
+	return date.split("-");
+
+}
 
 // Retourne le texte HTML à afficher à l'utilisateur pour voir les
 // résultats du sondage demandé
@@ -200,6 +237,8 @@ var creerSondage = function(titre, id, dateDebut, dateFin, heureDebut, heureFin)
     // TODO
 	
 	//On commence par vérifier les informations
+	
+	
 	
 	if ( !(/^[a-zA-Z0-9\-]+$/.test(id) ) ) return false;
 	

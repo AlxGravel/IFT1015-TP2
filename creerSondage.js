@@ -10,6 +10,7 @@
 var creerSondage = function(titre, id, dateDebut, dateFin, heureDebut, heureFin) {
     // TODO
 	
+	console.log(dateFin - dateDebut);
 	//On commence par vérifier les informations
 	
 	if ( !(/^[a-zA-Z0-9\-]+$/.test(id) ) ) return false;
