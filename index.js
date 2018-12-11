@@ -123,14 +123,6 @@ var MILLIS_PAR_JOUR = (24 * 60 * 60 * 1000);
 //fonctions générales 
 
 
-//NEED listSondages;
-
-
-
-
-
-
-
 //NEED listSondages; mois;
 
 
@@ -145,8 +137,13 @@ var MILLIS_PAR_JOUR = (24 * 60 * 60 * 1000);
 // Doit retourner false si le calendrier demandé n'existe pas
 var getCalendar = function (sondageId) {
     // TODO
+	
+	// On copie le sondage désiré grâce à la fonction findSondage créée
 	var sondage = findSondage(sondageId);
 	
+	
+	//On prend le fichier par défaut et on le met dans une variable
+	//pour le modifier plus tard
 	var defaultDoc = readFile("template/calendar.html");
 	
 	//On recréé les dates car elles ont mal été enregistrées
@@ -156,6 +153,9 @@ var getCalendar = function (sondageId) {
 	
 	var nbJours = (dateFin-dateDebut)/MILLIS_PAR_JOUR;
 	
+	var nbHeures = +sondage.heureFin - +sondage.heureDebut;
+	console.log(nbHeures);
+	
 	//On créé notre table en suivant le modèle donné dans l'énoncé du TP
 	var table = "<table id = \"calendrier\" \n" +
 							"onmousedown = \"onClick(event)\" \n" +
@@ -164,22 +164,35 @@ var getCalendar = function (sondageId) {
 							nbJours +
 							"\" data-nbheures = \"" + 
 							(+sondage.heureFin - +sondage.heureDebut) +
-							"\">";
+							"\">"
 
 	table += "<tr><th></th>";
 	
-	console.log("gonna parse");
 	var date = parseDate(sondage.dateDebut);
-	console.log("parse completed");
 	
 	for(var i = 0; i < nbJours; i++) {
 		
-		var jour = +date[2]+i;
-		
-		table += "<th>" + jour + " " + mois[ date[1]-1 ] + "</th>";
+		table += "<th>" + (date[2]+i) + " " + mois[ date[1]-1 ] + "</th>";
 		
 	}
 	
+	table+= "</tr>";
+	
+	
+	//On créé la table par colonne
+	for(var i = 0; i < nbHeures; i++) {
+		
+		table += "<tr><th>" + (+sondage.heureDebut + i) + "</th>";
+		
+		for(var j = 0; i < nbJours; i++) {
+			
+			table += "<td id=\"" + j + "-" + i + "\">allo</td>";
+			
+		}
+		
+		table += "</tr>";
+		
+	}
 
 	table += "</tr>";
 							

@@ -23,6 +23,8 @@ var getCalendar = function (sondageId) {
 	
 	var nbJours = (dateFin-dateDebut)/MILLIS_PAR_JOUR;
 	
+	var nbHeures = +sondage.heureFin - +sondage.heureDebut;
+	
 	//On créé notre table en suivant le modèle donné dans l'énoncé du TP
 	var table = "<table id = \"calendrier\" \n" +
 							"onmousedown = \"onClick(event)\" \n" +
@@ -33,16 +35,34 @@ var getCalendar = function (sondageId) {
 							(+sondage.heureFin - +sondage.heureDebut) +
 							"\">"
 
-	table += "<tr><th></th>"
+	table += "<tr><th></th>";
 	
-	var date = parseDate(dateDebut);
+	var date = parseDate(sondage.dateDebut);
 	
 	for(var i = 0; i < nbJours; i++) {
 		
-		table += "<th>" + (date[2]+i) + " " + mois[ date[1]-1 ] + "</th>";
+		var jour = date[2]+i;
+		
+		table += "<th>" + jour + " " + mois[ date[1]-1 ] + "</th>";
 		
 	}
 	
+	table+= "</tr>";
+	
+	
+	for(var i = 0; i < nbHeures; i++) {
+		
+		table += "<tr><th>" + (sondage.heureDebut+i) + "</th>";
+		
+		for(var j = 0; i < nbJours; i++) {
+			
+			table += "<td id=\"" + j + "-" + i + "\">" + j + "-" + i + "</td>";
+			
+		}
+		
+		table += "</tr>"
+		
+	}
 
 	table += "</tr>";
 							
