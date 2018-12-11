@@ -8,9 +8,8 @@
 // Doit retourner false si les informations ne sont pas valides, ou
 // true si le sondage a été créé correctement.
 var creerSondage = function(titre, id, dateDebut, dateFin, heureDebut, heureFin) {
-    // TODO
+    // TODO(BONUS)
 	
-	console.log(dateFin - dateDebut);
 	//On commence par vérifier les informations
 	
 	if ( !(/^[a-zA-Z0-9\-]+$/.test(id) ) ) return false;
