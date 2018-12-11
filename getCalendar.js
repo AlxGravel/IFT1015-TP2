@@ -1,4 +1,4 @@
-//NEED listSondages; mois;
+//NEED listSondages; mois;MILLIS_PAR_JOUR
 
 
 
@@ -11,8 +11,14 @@
 //
 // Doit retourner false si le calendrier demandé n'existe pas
 var getCalendar = function (sondageId) {
-    // TODO
+	
+	//On trouve le sondage demandé grâce à notre fonction
 	var sondage = findSondage(sondageId);
+	
+	
+	//Si la fonction renvoie -1, on retourne false comme demandé
+	//if(sondage == -1) return false;
+	
 	
 	var defaultDoc = readFile("template/calendar.html");
 	
@@ -21,9 +27,11 @@ var getCalendar = function (sondageId) {
 	var dateDebut = new Date(sondage.dateDebut);
 	var dateFin= new Date(sondage.dateFin);
 	
-	var nbJours = (dateFin-dateDebut)/MILLIS_PAR_JOUR;
-	
+	//On ajoute 1 au nombre de jours car le dernier et le premier sont inclus
+	var nbJours = (dateFin.getTime() - dateDebut.getTime())/MILLIS_PAR_JOUR+1;
 	var nbHeures = +sondage.heureFin - +sondage.heureDebut;
+	
+	console.log("nb jours:" + nbJours + "\nnbHeures:" + nbHeures);
 	
 	//On créé notre table en suivant le modèle donné dans l'énoncé du TP
 	var table = "<table id = \"calendrier\" \n" +
@@ -37,39 +45,40 @@ var getCalendar = function (sondageId) {
 
 	table += "<tr><th></th>";
 	
-	var date = parseDate(sondage.dateDebut);
-	
+	//On commence ici par ajouter la première rangée qui contient
+	//les dates durant lequel le sondage a lieu.
 	for(var i = 0; i < nbJours; i++) {
 		
-		var jour = date[2]+i;
+		var jour = addDays(dateDebut, i+1);
 		
-		table += "<th>" + jour + " " + mois[ date[1]-1 ] + "</th>";
+		table += "<th>" + jour.getDate() + " " + mois[jour.getMonth()] + "</th>";
 		
 	}
 	
 	table+= "</tr>";
 	
-	
+	//On créé ensuite une double boucle, car on en aura besoin pour
+	//créé les cases de notre tableau. i est pour la rangée, et j la colonne
 	for(var i = 0; i < nbHeures; i++) {
 		
-		table += "<tr><th>" + (sondage.heureDebut+i) + "</th>";
+		//L'heure sera incrémentée de 1 à chaque fois
+		table += "<tr><th>" + (+sondage.heureDebut+i) + "h</th>";
 		
-		for(var j = 0; i < nbJours; i++) {
+		for(var j = 0; j < nbJours; j++) {
 			
 			table += "<td id=\"" + j + "-" + i + "\">" + j + "-" + i + "</td>";
 			
 		}
 		
-		table += "</tr>"
+		table += "</tr>";
 		
 	}
 
-	table += "</tr>";
-							
-	table += "</table>";
+	table += "</tr>" + "</table>";
 	
 	
-	
+	//On remplace les accolades par les bonnes choses en utilisant regex
+	//(Accepté par un tpiste sur Studium)
 	defaultDoc = defaultDoc.replace( /\{\{titre\}\}/g , sondage.titre).replace(
 	/\{\{url\}\}/g, " http://localhost:1337/" + sondage.id).replace(
 	 /\{\{table\}\}/g , table);
@@ -77,6 +86,8 @@ var getCalendar = function (sondageId) {
 	
     return 'Calendrier <b>' + sondageId + '</b> (TODO)' + defaultDoc;
 };
+
+
 
 
 //Retourne la position dans la liste de sondages
@@ -96,9 +107,10 @@ function findSondage(sondageId) {
 }
 
 
-//Sépare une date de format "aaaa-mm-jj" en un tableau ["aaaa","mm","jj"]
-function parseDate(date) {
+//Ajoute un nombre de jours à une date
+function addDays(date, days) {
 	
-	return date.split("-");
-
+	var result = new Date(date);
+	result.setDate(result.getDate() + days);
+	return result;
 }
