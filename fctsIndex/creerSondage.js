@@ -24,7 +24,7 @@ var creerSondage = function(titre, id, dateDebut, dateFin, heureDebut, heureFin)
 	//On veut ensuite créer le sondage et l'ajouter à notre liste.
 	var sondage = {
 	    "titre":titre, "id":id,
-	    "dateDebut":dateDebut, "dateFin":dateFin,
+	    "dateDebut":new Date(dateDebut), "dateFin":new Date(dateFin),
 	    "heureDebut":heureDebut, "heureFin":heureFin,
 	    "participants": []
 	};

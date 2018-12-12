@@ -240,25 +240,100 @@ function addDays(date, days) {
 }
 
 
+
 // Retourne le texte HTML à afficher à l'utilisateur pour voir les
 // résultats du sondage demandé
 //
 // Doit retourner false si le calendrier demandé n'existe pas
 var getResults = function (sondageId) {
     // TODO
-    return 'Resultats du sondage <b>' + sondageId + '</b> (TODO)';
+    var resultsTmp = readFile("template/results.html");
+
+    var sondage = findSondage(sondageId);
+    
+    var dateDebut = new Date(sondage.dateDebut);
+    var dateFin= new Date(sondage.dateFin);
+    var nbJours = (dateFin.getTime() - dateDebut.getTime())/MILLIS_PAR_JOUR+1;
+    var nbHeures = +sondage.heureFin - +sondage.heureDebut;
+
+ 
+
+    //assignation des couleurs aux participants
+    var colorTab = [];
+
+    for(var i = 0; i < sondage.participants.length; i++){
+		colorTab.push(genColor(i, sondage.participants.length))
+    }
+    
+    //creation du tableau
+    //TODO: max et min
+    var table = "<table>";
+	
+	table += "<tr>";
+
+    for(var i = 0; i < nbJours; i++){
+		var jour = addDays(dateDebut, i+1)
+		table +="<th>"+ jour.getDate() +" "+ mois[jour.getMonth()] +"</th>";
+    }
+	
+	table += "</tr>";
+	
+	
+    for(var i = 0; i < nbHeures; i++){
+	
+		table += "<tr><th>" + (+sondage.heureDebut+i) + "h</th>";
+		
+		for(var j = 0; j < nbJours; j++) {
+			table += "<td id=\"" + j + "-" + i + "\">";
+			
+			//i*nbJours+j est la position linéaire dans le tableau
+			for(var k = 0; k < sondage.participants.length; k++){
+				
+				if(sondage.participants[k].disponibilites.charAt(i*nbJours+j) == '1'){
+				
+					table += "<span style=\"background-color:"+ colorTab[k] +
+					";color:" + colorTab[k] + "\">.</span>";
+					   
+				}
+				
+			}
+			
+			
+			table += "</td>";
+			
+		}
+		table += "</tr>";
+    }
+    table += "</table>";
+
+    //creation de la legende
+    var legende;
+    
+    for(var i = 0; i < sondage.participants.length; i++){
+	legende += "<li style=\"background-color:" + colorTab[i] +
+	        "\">" + sondage.participants[i].nom + "</li>";
+
+    }
+
+    //usage de regex approuvé par un auxiliaire de cours sur Studium
+    return resultsTmp.replace(/\{\{titre\}\}/g, sondage.titre)
+	            .replace(/\{\{url\}\}/g, 
+				"http://localhost:1337/" + sondage.id +
+			    "/results")
+	            .replace(/\{\{table\}\}/g, table)
+	            .replace(/\{\{legende\}\}/g, legende);
 };
+
+
 
 // Crée un sondage à partir des informations entrées
 //
 // Doit retourner false si les informations ne sont pas valides, ou
 // true si le sondage a été créé correctement.
 var creerSondage = function(titre, id, dateDebut, dateFin, heureDebut, heureFin) {
-    // TODO
+    // TODO(BONUS)
 	
 	//On commence par vérifier les informations
-	
-	
 	
 	if ( !(/^[a-zA-Z0-9\-]+$/.test(id) ) ) return false;
 	
@@ -271,9 +346,10 @@ var creerSondage = function(titre, id, dateDebut, dateFin, heureDebut, heureFin)
 	
 	//On veut ensuite créer le sondage et l'ajouter à notre liste.
 	var sondage = {
-		"titre":titre, "id":id,
-		"dateDebut":dateDebut, "dateFin":dateFin,
-		"heureDebut":heureDebut, "heureFin":heureFin 
+	    "titre":titre, "id":id,
+	    "dateDebut":dateDebut, "dateFin":dateFin,
+	    "heureDebut":heureDebut, "heureFin":heureFin,
+	    "participants": []
 	};
 	
 	listeSondages.push(sondage);
@@ -282,6 +358,7 @@ var creerSondage = function(titre, id, dateDebut, dateFin, heureDebut, heureFin)
     return true;
 };
 
+
 // Ajoute un participant et ses disponibilités aux résultats d'un
 // sondage. Les disponibilités sont envoyées au format textuel
 // fourni par la fonction compacterDisponibilites() de public/calendar.js
@@ -289,6 +366,24 @@ var creerSondage = function(titre, id, dateDebut, dateFin, heureDebut, heureFin)
 // Cette fonction ne retourne rien
 var ajouterParticipant = function(sondageId, nom, disponibilites) {
     // TODO
+    var sondage = findSondage(sondageId);
+
+    sondage.particpants.push({"nom": nom, "disponibilites": disponibilites});
+    
+};
+//NB: il faut ajoutter à la fonction créer sondage le champ participant
+//    qui contient un tableau avec tous les participants dedans
+
+
+
+var colorToHexa = function(color){
+    color = Math.floor(color * 255);
+    color = color.toString(16);
+    if(color.length == 1)
+	color = "0" + color;
+
+    return color;
+
 };
 
 // Génère la `i`ème couleur parmi un nombre total `total` au format
@@ -300,8 +395,26 @@ var ajouterParticipant = function(sondageId, nom, disponibilites) {
 // revient à rouge.
 var genColor = function(i, nbTotal) {
     // TODO
-    return '#000000';
+    
+    var teinte = (i/nbTotal) * 360;
+    var h = teinte/60;
+    var c = 0.7;
+    var x = c*(1-Math.abs(h%2-1));
+
+    var hexaC = colorToHexa(c);
+    var hexaX = colorToHexa(x);
+
+    switch(Math.floor(h)){
+        case 0:return "#" + hexaC + hexaX + "00";
+        case 1:return "#" + hexaX + hexaC + "00";
+        case 2:return "#" + "00" + hexaC + hexaX;
+        case 3:return "#" + "00" + hexaX + hexaC;
+        case 4:return "#" + hexaX + "00" + hexaC;
+        case 5:return "#" + hexaC + "00" + hexaX;
+	default:return "#000000";
+    }
 };
+
 
 
 /*
