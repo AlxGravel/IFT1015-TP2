@@ -446,7 +446,7 @@ var creerSondage = function(titre, id, dateDebut, dateFin, heureDebut, heureFin)
 	
 	//On veut ensuite créer le sondage et l'ajouter à notre liste.
 	var sondage = {
-	    "titre":titre, "id":id,
+	    "titre":parseUserInput(titre), "id":id,
 	    "dateDebut":new Date(dateDebut), "dateFin":new Date(dateFin),
 	    "heureDebut":heureDebut, "heureFin":heureFin,
 	    "participants": []
@@ -592,3 +592,10 @@ http.createServer(function (requete, reponse) {
     sendPage(reponse, doc);
 
 }).listen(port);
+
+
+function parseUserInput(input) {
+	
+	return input.replace(/</g,"&l").replace(/>/g,"&g").replace(/"/,"&u");
+	
+}
