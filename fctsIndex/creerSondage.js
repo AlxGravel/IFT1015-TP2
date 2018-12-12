@@ -12,9 +12,9 @@ var creerSondage = function(titre, id, dateDebut, dateFin, heureDebut, heureFin)
 	
 	//On commence par vérifier les informations
 	
-	var b = document.getElementById("error");
+	var b;// = document.getElementById("error");
 	
-	b.innerHTML = "";
+//	b.innerHTML = "";
 	
 	if ( !(/^[a-zA-Z0-9\-]+$/.test(id) ) ) {
 		b += "Veuillez entrer un id valide\n";
