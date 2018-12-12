@@ -43,6 +43,13 @@ var getCalendar = function (sondageId) {
 
 function writeTable(sondage) {
 	
+	//On ajoute 1 au nombre de jours car le dernier et le premier sont inclus
+	var nbJours = (sondage.dateFin.getTime() - sondage.dateDebut.getTime())/MILLIS_PAR_JOUR+1;
+	var nbHeures = +sondage.heureFin - +sondage.heureDebut;
+	
+	
+	
+	
 	var table = "<table id = \"calendrier\" \n" +
 							"onmousedown = \"onClick(event)\" \n" +
 							"onmouseover = \"onMove(event)\" \n" +
@@ -64,7 +71,7 @@ function writeTable(sondage) {
 		
 	}
 		
-		table+= "</tr>";
+	table+= "</tr>";
 	
 	//On créé ensuite une double boucle, car on en aura besoin pour
 	//créé les cases de notre tableau. i est pour la rangée, et j la colonne
@@ -75,7 +82,7 @@ function writeTable(sondage) {
 		
 		for(var j = 0; j < nbJours; j++) {
 			
-			table += "<td id=\"" + j + "-" + i + "\">" + j + "-" + i + "</td>";
+			table += "<td id=\"" + j + "-" + i + "\"></td>";
 			
 		}
 		
@@ -84,13 +91,11 @@ function writeTable(sondage) {
 	}
 
 	table += "</tr>" + "</table>";
+	
+	return table;
 		
 }
-	
-	
-	
-	
-	
+
 
 //Retourne la position dans la liste de sondages
 //du sondage demandé

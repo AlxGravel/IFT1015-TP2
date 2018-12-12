@@ -141,67 +141,18 @@ var getCalendar = function (sondageId) {
 	
 	
 	//Si la fonction renvoie -1, on retourne false comme demandé
-	//if(sondage == -1) return false;
+	if(sondage == -1) return false;
 	
 	
 	var defaultDoc = readFile("template/calendar.html");
 	
-	//On recréé les dates car elles ont mal été enregistrées
-	//(Va savoir pourquoi)
-	var dateDebut = new Date(sondage.dateDebut);
-	var dateFin= new Date(sondage.dateFin);
-	
 	//On ajoute 1 au nombre de jours car le dernier et le premier sont inclus
-	var nbJours = (dateFin.getTime() - dateDebut.getTime())/MILLIS_PAR_JOUR+1;
-	var nbHeures = +sondage.heureFin - +sondage.heureDebut;
+	var nbJours = (sondage.dateFin.getTime() - sondage.dateDebut.getTime())/MILLIS_PAR_JOUR+1;
+	var nbHeures = +sondage.heureFin - +sondage.heureDebut + 1;
 	
-	console.log("nb jours:" + nbJours + "\nnbHeures:" + nbHeures);
 	
 	//On créé notre table en suivant le modèle donné dans l'énoncé du TP
-	var table = "<table id = \"calendrier\" \n" +
-							"onmousedown = \"onClick(event)\" \n" +
-							"onmouseover = \"onMove(event)\" \n" +
-							"data-nbjours = \"" +
-							nbJours +
-							"\" data-nbheures = \"" + 
-							(+sondage.heureFin - +sondage.heureDebut) +
-							"\">"
-
-	table += "<tr><th></th>";
-	
-	//On commence ici par ajouter la première rangée qui contient
-	//les dates durant lequel le sondage a lieu.
-	for(var i = 0; i < nbJours; i++) {
-		
-		var jour = addDays(dateDebut, i+1);
-		
-		table += "<th>" + jour.getDate() + " " + mois[jour.getMonth()] + "</th>";
-		
-	}
-	
-	table+= "</tr>";
-	
-	//On créé ensuite une double boucle, car on en aura besoin pour
-	//créé les cases de notre tableau. i est pour la rangée, et j la colonne
-	for(var i = 0; i < nbHeures; i++) {
-		
-		//L'heure sera incrémentée de 1 à chaque fois
-		table += "<tr><th>" + (+sondage.heureDebut+i) + "h</th>";
-		
-		for(var j = 0; j < nbJours; j++) {
-			
-			table += "<td id=\"" + j + "-" + i + "\">" + j + "-" + i + "</td>";
-			
-		}
-		
-		table += "</tr>";
-		
-	}
-
-	table += "</tr>";
-							
-	table += "</table>";
-	
+	var table = writeTable(sondage);
 	
 	//On remplace les accolades par les bonnes choses en utilisant regex
 	//(Accepté par un tpiste sur Studium)
@@ -213,6 +164,63 @@ var getCalendar = function (sondageId) {
     return 'Calendrier <b>' + sondageId + '</b> (TODO)' + defaultDoc;
 };
 
+
+function writeTable(sondage) {
+	
+	//On ajoute 1 au nombre de jours car le dernier et le premier sont inclus
+	var nbJours = (sondage.dateFin.getTime() - sondage.dateDebut.getTime())/MILLIS_PAR_JOUR+1;
+	var nbHeures = +sondage.heureFin - +sondage.heureDebut + 1;
+	
+	var table = "<table id = \"calendrier\" \n" +
+							"onmousedown = \"onClick(event)\" \n" +
+							"onmouseover = \"onMove(event)\" \n" +
+							"data-nbjours = \"" +
+							nbJours +
+							"\" data-nbheures = \"" + 
+							(+sondage.heureFin - +sondage.heureDebut) +
+							"\">";
+							
+	table += "<tr><th></th>";
+	
+	//On commence ici par ajouter la première rangée qui contient
+	//les dates durant lequel le sondage a lieu.
+	for(var i = 0; i < nbJours; i++) {
+		
+		var jour = addDays(sondage.dateDebut, i+1);
+		
+		table += "<th>" + jour.getDate() + " " + mois[jour.getMonth()] + "</th>";
+		
+	}
+		
+	table+= "</tr>";
+	
+	//On créé ensuite une double boucle, car on en aura besoin pour
+	//créé les cases de notre tableau. i est pour la rangée, et j la colonne
+	for(var i = 0; i < nbHeures; i++) {
+		
+		//L'heure sera incrémentée de 1 à chaque fois
+		table += "<tr><th>" + (+sondage.heureDebut+i) + "h</th>";
+		
+		for(var j = 0; j < nbJours; j++) {
+			
+			table += "<td id=\"" + j + "-" + i + "\"></td>";
+			
+		}
+		
+		table += "</tr>";
+		
+	}
+
+	table += "</tr>" + "</table>";
+	
+	return table;
+		
+}
+	
+	
+	
+	
+	
 
 //Retourne la position dans la liste de sondages
 //du sondage demandé
@@ -241,6 +249,9 @@ function addDays(date, days) {
 
 
 
+
+
+
 // Retourne le texte HTML à afficher à l'utilisateur pour voir les
 // résultats du sondage demandé
 //
@@ -250,11 +261,9 @@ var getResults = function (sondageId) {
     var resultsTmp = readFile("template/results.html");
 
     var sondage = findSondage(sondageId);
-    
-    var dateDebut = new Date(sondage.dateDebut);
-    var dateFin= new Date(sondage.dateFin);
-    var nbJours = (dateFin.getTime() - dateDebut.getTime())/MILLIS_PAR_JOUR+1;
-    var nbHeures = +sondage.heureFin - +sondage.heureDebut;
+	
+    var nbJours = (sondage.dateFin.getTime() - sondage.dateDebut.getTime())/MILLIS_PAR_JOUR+1;
+    var nbHeures = +sondage.heureFin - +sondage.heureDebut + 1;
 
  
 
@@ -267,24 +276,66 @@ var getResults = function (sondageId) {
     
     //creation du tableau
     //TODO: max et min
-    var table = "<table>";
-	
-	table += "<tr>";
+	var table = writeResults(sondage, colorTab);
 
-    for(var i = 0; i < nbJours; i++){
-		var jour = addDays(dateDebut, i+1)
-		table +="<th>"+ jour.getDate() +" "+ mois[jour.getMonth()] +"</th>";
-    }
+    //creation de la legende
+    var legende = writeLegend(sondage, colorTab);
+
+    //usage de regex approuvé par un auxiliaire de cours sur Studium
+    return resultsTmp.replace(/\{\{titre\}\}/g, sondage.titre)
+	            .replace(/\{\{url\}\}/g, 
+				"http://localhost:1337/" + sondage.id)
+	            .replace(/\{\{table\}\}/g, table)
+	            .replace(/\{\{legende\}\}/g, legende);
+};
+
+//*******************************************************************************
+
+//Fonctions auxiliaires
+
+
+function writeResults(sondage, colorTab) {
+	
+    var nbJours = (sondage.dateFin.getTime() - sondage.dateDebut.getTime())/MILLIS_PAR_JOUR+1;
+    var nbHeures = +sondage.heureFin - +sondage.heureDebut;
+	
+	var participantsMax = getMax(sondage);
+	
+	var participantsMin = getMin(sondage);
+	
+	var table = "<table>" + "<tr>" + "<th></th>";
+	
+	for(var i = 0; i < nbJours; i++) {
+		
+		var jour = addDays(sondage.dateDebut, i+1);
+		
+		table += "<th>" + jour.getDate() + " " + mois[jour.getMonth()] + "</th>";
+		
+	}
 	
 	table += "</tr>";
 	
-	
-    for(var i = 0; i < nbHeures; i++){
-	
-		table += "<tr><th>" + (+sondage.heureDebut+i) + "h</th>";
+	for(var i = 0; i < nbHeures; i++) {
+		
+		table += "<tr>" + "<th>" + (+sondage.heureDebut + i) +"h</th>";
 		
 		for(var j = 0; j < nbJours; j++) {
-			table += "<td id=\"" + j + "-" + i + "\">";
+			
+			var isMax = false, isMin = false;
+			var nb = 0;
+			
+			for(var k = 0; k < sondage.participants.length; k++){
+				
+				if(sondage.participants[k].disponibilites.charAt(i*nbJours+j) == '1')
+					nb++;
+			}
+			
+			if(nb == participantsMax) isMax = true;
+			if(nb == participantsMin) isMin = true;
+			
+			console.log(i + "," + j + ":" + "Max:" + isMax + "\nMin:" + isMin);
+			
+			table += "<td" + (isMax?" class=\"max\"":"") + (isMin?" class=\"min\"":"") + ">";
 			
 			//i*nbJours+j est la position linéaire dans le tableau
 			for(var k = 0; k < sondage.participants.length; k++){
@@ -298,31 +349,80 @@ var getResults = function (sondageId) {
 				
 			}
 			
-			
-			table += "</td>";
+			table+= "</td>";
 			
 		}
+		
 		table += "</tr>";
+	}
+	
+	table += "</table>";
+	
+	console.log("min = " + participantsMin + "\nmax = " + participantsMax);
+	
+	return table;
+	
+}
+
+function writeLegend(sondage, colorTab) {
+	
+	var legende = "";
+	
+	for(var i = 0; i < sondage.participants.length; i++){
+		legende += "<li style=\"background-color:" + colorTab[i] +
+			"\">" + sondage.participants[i].nom + "</li>";
+
     }
-    table += "</table>";
+	
+	return legende;
+	
+}
 
-    //creation de la legende
-    var legende;
-    
-    for(var i = 0; i < sondage.participants.length; i++){
-	legende += "<li style=\"background-color:" + colorTab[i] +
-	        "\">" + sondage.participants[i].nom + "</li>";
+function getMax(sondage) {
+	
+	var max = 0;
+	
+	for(var i = 0; i < sondage.participants[0].disponibilites.length; i++) {
+		
+		var nb = 0;
+		for(var j = 0; j < sondage.participants.length; j++) {
+			
+			if( sondage.participants[j].disponibilites.charAt(i) == 1) ++nb;
+			
+		}
+		
+		if( nb > max ) max = nb;
+		
+	}
+	
+	return max;
+}
 
-    }
 
-    //usage de regex approuvé par un auxiliaire de cours sur Studium
-    return resultsTmp.replace(/\{\{titre\}\}/g, sondage.titre)
-	            .replace(/\{\{url\}\}/g, 
-				"http://localhost:1337/" + sondage.id +
-			    "/results")
-	            .replace(/\{\{table\}\}/g, table)
-	            .replace(/\{\{legende\}\}/g, legende);
-};
+function getMin(sondage) {
+			
+	var min = 1e10;
+	
+	for(var i = 0; i < sondage.participants[0].disponibilites.length; i++) {
+		
+		var nb = 0;
+		for(var j = 0; j < sondage.participants.length; j++) {
+			
+			if( sondage.participants[j].disponibilites.charAt(i) == 1) ++nb;
+			
+		}
+		
+		if( nb < min ) min = nb;
+		
+	}
+	
+	return min;
+}
+
+
+
+
+
 
 
 
@@ -347,7 +447,7 @@ var creerSondage = function(titre, id, dateDebut, dateFin, heureDebut, heureFin)
 	//On veut ensuite créer le sondage et l'ajouter à notre liste.
 	var sondage = {
 	    "titre":titre, "id":id,
-	    "dateDebut":dateDebut, "dateFin":dateFin,
+	    "dateDebut":new Date(dateDebut), "dateFin":new Date(dateFin),
 	    "heureDebut":heureDebut, "heureFin":heureFin,
 	    "participants": []
 	};
@@ -359,6 +459,7 @@ var creerSondage = function(titre, id, dateDebut, dateFin, heureDebut, heureFin)
 };
 
 
+
 // Ajoute un participant et ses disponibilités aux résultats d'un
 // sondage. Les disponibilités sont envoyées au format textuel
 // fourni par la fonction compacterDisponibilites() de public/calendar.js
@@ -368,19 +469,21 @@ var ajouterParticipant = function(sondageId, nom, disponibilites) {
     // TODO
     var sondage = findSondage(sondageId);
 
-    sondage.particpants.push({"nom": nom, "disponibilites": disponibilites});
+    sondage.participants.push({"nom": nom, "disponibilites": disponibilites});
+	
+	console.log("Participant " + nom + " ajouté! " + disponibilites );
+	
+	return;
     
 };
-//NB: il faut ajoutter à la fonction créer sondage le champ participant
-//    qui contient un tableau avec tous les participants dedans
+
 
 
 
 var colorToHexa = function(color){
     color = Math.floor(color * 255);
     color = color.toString(16);
-    if(color.length == 1)
-	color = "0" + color;
+    if(color.length == 1) color = "0" + color;
 
     return color;
 
@@ -414,6 +517,7 @@ var genColor = function(i, nbTotal) {
 	default:return "#000000";
     }
 };
+
 
 
 
